@@ -185,7 +185,7 @@ button{font:inherit;color:inherit}
   <!-- acciones principales -->
   <div class="primary">
     
-    <a class="btn save" id="saveBtn" download="Eduardo Waisbein - Procom.vcf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M2.5 20a7.5 7.5 0 0 1 12.5-5.6"/><path d="M19 14v6M16 17h6"/></svg>Agendar en mi celular</a>
+    <a class="btn save" id="saveBtn" href="eduardo-waisbein.vcf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="8" r="4"/><path d="M2.5 20a7.5 7.5 0 0 1 12.5-5.6"/><path d="M19 14v6M16 17h6"/></svg>Agendar en mi celular</a>
     <a class="btn wa" id="waBtn" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.8-1.4a.5.5 0 0 0 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>Enviar WhatsApp</a>
     
     <p class="rowlbl">Para mostrar en persona</p>
@@ -326,19 +326,26 @@ $('flip').addEventListener('click',()=>setFlip(!$('flip').classList.contains('fl
 /* Guardar contacto: muestra el QR de contacto (desde el link de Claude no se puede descargar la ficha) */
 $('qrBtn').addEventListener('click',()=>{ setFlip(true); window.scrollTo({top:0,behavior:'smooth'}); say('Que lo escaneen con la cámara del celular'); });
 
-/* "Agendar en mi celular": la ficha se arma acá mismo (no depende del servidor) */
-const VCARD_FULL=['BEGIN:VCARD','VERSION:3.0',
-  `N:${CARD.last};${CARD.first};;;`,`FN:${full}`,`ORG:${CARD.org}`,`TITLE:${CARD.role}`,
-  `TEL;TYPE=CELL:${CARD.phoneDial}`,`EMAIL;TYPE=WORK:${CARD.email}`,`URL:${CARD.webUrl}`,
-  `URL:${CARD.igUrl}`,`URL:${CARD.cardUrl}`,'NOTE:En alianza con Grupo Novoa',
-  'END:VCARD'].join('\r\n')+'\r\n';
-$('saveBtn').href='data:text/vcard;charset=utf-8,'+encodeURIComponent(VCARD_FULL);
+/* "Agendar en mi celular": abre la ficha eduardo-waisbein.vcf del servidor.
+   iPhone muestra el contacto para guardarlo; Android lo descarga y se abre desde el aviso. */
+if(/Android/i.test(navigator.userAgent)){
+  /* Android: abre la app Contactos con los datos cargados (solo falta tocar Guardar).
+     Si el celular no lo permite, Chrome descarga la ficha .vcf (browser_fallback_url). */
+  const e=encodeURIComponent, vcfAbs=new URL('eduardo-waisbein.vcf',location.href).href;
+  $('saveBtn').href='intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/raw_contact'
+    +';S.name='+e(full)+';S.phone='+e(CARD.phoneDial)+';i.phone_type=2'
+    +';S.email='+e(CARD.email)+';i.email_type=2'
+    +';S.company='+e(CARD.org)+';S.job_title='+e(CARD.role)
+    +';S.browser_fallback_url='+e(vcfAbs)+';end';
+  /* si no se abrió Contactos (la página sigue visible), explicar el paso que falta */
+  $('saveBtn').addEventListener('click',()=>setTimeout(()=>{ if(!document.hidden) say('Tocá "Abrir" en el aviso de descarga para guardar el contacto',4500); },1800));
+}
 /* dentro de Claude las descargas están bloqueadas: avisar en vez de fallar en silencio */
 
 
 /* copiar */
 const toast=$('toast'); let tt;
-function say(msg){ toast.textContent=msg; toast.hidden=false; clearTimeout(tt); tt=setTimeout(()=>toast.hidden=true,1800); }
+function say(msg,ms=1800){ toast.textContent=msg; toast.hidden=false; clearTimeout(tt); tt=setTimeout(()=>toast.hidden=true,ms); }
 async function copy(text, okMsg){
   try{ await navigator.clipboard.writeText(text); say(okMsg); }
   catch(e){ const i=$('linkInput'); const prev=i.value; i.value=text; i.select(); say('Mantené apretado para copiar'); setTimeout(()=>{i.value=prev},4000); }
