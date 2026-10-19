@@ -1,0 +1,4 @@
+# Tipos de archivo para Apache
+AddType application/manifest+json .webmanifest
+AddType image/webp .webp
+DirectoryIndex index.html
