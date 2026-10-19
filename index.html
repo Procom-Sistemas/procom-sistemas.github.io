@@ -221,7 +221,7 @@ button{font:inherit;color:inherit}
     </a>
     <a class="fs-card" id="videoLink" target="_blank" rel="noopener" hidden>
       <span class="thumb yt" id="videoThumb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
-      <span class="t"><b>Video de presentación</b><span>Factory Shoes en pocos minutos.</span></span>
+      <span class="t"><b>Ver video de Factory Shoes</b></span>
       <span class="go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></span>
     </a>
     <a class="fs-card" id="channelLink" target="_blank" rel="noopener" hidden>
@@ -268,7 +268,7 @@ const CARD = {
   whatsapp:'https://wa.link/9gmn06',
   demoMsg:'Hola Eduardo, vi tu tarjeta digital y me gustaría ver una demo de Factory Shoes.',
   deckUrl:'https://factory.procomsistemas.mx/',
-  videoUrl:'https://www.youtube.com/watch?v=EG5F-2CoTdI',   // video de presentación de Factory Shoes
+  videoUrl:'https://youtu.be/MNVJ_nblRvE',   // video de presentación de Factory Shoes
   channelUrl:'https://www.youtube.com/@procomsistemas',   // canal de YouTube de Procom
   novoaUrl:'https://www.rnovoa.com.mx/',
   cardUrl:'https://eduardo.procomsistemas.mx/'   // link de esta tarjeta (QR de "Compartir")
@@ -289,7 +289,7 @@ $('deckLink').href=CARD.deckUrl;
 $('demoLink').href='https://wa.me/'+CARD.phoneDial.replace(/\D/g,'')+'?text='+encodeURIComponent(CARD.demoMsg); $('novoaLink').href=CARD.novoaUrl;
 if(CARD.videoUrl){ $('videoLink').href=CARD.videoUrl; $('videoLink').hidden=false;
   /* miniatura real del video (en Claude no carga: queda el ícono de play) */
-  const vid=(CARD.videoUrl.match(/[?&]v=([\w-]{11})/)||[])[1];
+  const vid=(CARD.videoUrl.match(/(?:[?&]v=|youtu\.be\/|\/embed\/)([\w-]{11})/)||[])[1];
   if(vid){ const im=new Image(); im.alt='';
     im.onload=()=>{ if(im.naturalWidth>120){ const t=$('videoThumb'); t.innerHTML=''; t.classList.add('has-img'); t.appendChild(im);} };
     im.src='https://img.youtube.com/vi/'+vid+'/hqdefault.jpg'; } }
